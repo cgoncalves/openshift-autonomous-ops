@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="'Segoe UI',Roboto,Arial,sans-serif" font-size="13">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#666"/></marker>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#0066CC"/></marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3E8635"/></marker>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#6753AC"/></marker>
+    <linearGradient id="gBlue" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0066CC"/><stop offset="100%" stop-color="#004499"/></linearGradient>
+    <linearGradient id="gPurple" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#6753AC"/><stop offset="100%" stop-color="#4F3D8A"/></linearGradient>
+    <linearGradient id="gGreen" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#3E8635"/><stop offset="100%" stop-color="#2D6B27"/></linearGradient>
+    <linearGradient id="gRed" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#EE0000"/><stop offset="100%" stop-color="#CC0000"/></linearGradient>
+  </defs>
+
+  <rect width="800" height="480" rx="12" fill="#F5F5F5"/>
+  <text x="400" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1A1A1A">PoC 4.3 — NOC Assistant: Architecture</text>
+
+  <!-- OpenShift boundary -->
+  <rect x="230" y="50" width="540" height="410" rx="10" fill="none" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <text x="250" y="460" font-size="10" fill="#CC0000">OpenShift Cluster</text>
+
+  <!-- Operator -->
+  <rect x="30" y="80" width="160" height="65" rx="8" fill="white" stroke="#333" stroke-width="2" filter="url(#shadow)"/>
+  <text x="110" y="108" text-anchor="middle" fill="#333" font-weight="600">Operator</text>
+  <text x="110" y="128" text-anchor="middle" fill="#666" font-size="11">Browser</text>
+
+  <!-- Gradio -->
+  <rect x="260" y="80" width="170" height="65" rx="8" fill="url(#gBlue)" filter="url(#shadow)"/>
+  <text x="345" y="108" text-anchor="middle" fill="white" font-weight="600">Gradio Chat UI</text>
+  <text x="345" y="128" text-anchor="middle" fill="#B3D4FF" font-size="11">NOC Assistant</text>
+  <line x1="190" y1="112" x2="260" y2="112" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- LlamaStack -->
+  <rect x="260" y="185" width="170" height="65" rx="8" fill="url(#gPurple)" filter="url(#shadow)"/>
+  <text x="345" y="213" text-anchor="middle" fill="white" font-weight="600">LlamaStack</text>
+  <text x="345" y="233" text-anchor="middle" fill="#D4C4F0" font-size="11">Responses API</text>
+  <line x1="345" y1="145" x2="345" y2="185" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- MCP Server -->
+  <rect x="500" y="80" width="170" height="65" rx="8" fill="url(#gGreen)" filter="url(#shadow)"/>
+  <text x="585" y="108" text-anchor="middle" fill="white" font-weight="600">MCP Server</text>
+  <text x="585" y="128" text-anchor="middle" fill="#C4E8BF" font-size="11">Read + Write</text>
+  <line x1="430" y1="112" x2="500" y2="112" stroke="#3E8635" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowGreen)"/>
+
+  <!-- External LLM -->
+  <rect x="500" y="185" width="170" height="65" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" filter="url(#shadow)"/>
+  <text x="585" y="213" text-anchor="middle" fill="#4F3D8A" font-weight="600">External LLM</text>
+  <text x="585" y="233" text-anchor="middle" fill="#6753AC" font-size="11">Qwen 3.6 35B</text>
+  <line x1="430" y1="217" x2="500" y2="217" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowPurple)"/>
+
+  <!-- Cluster resources -->
+  <rect x="500" y="290" width="170" height="60" rx="8" fill="#E8F5E3" stroke="#3E8635" stroke-width="1" filter="url(#shadow)"/>
+  <text x="585" y="315" text-anchor="middle" fill="#2D6B27" font-weight="600" font-size="12">Cluster Resources</text>
+  <text x="585" y="335" text-anchor="middle" fill="#3E8635" font-size="10">Nodes, Pods, Events, Metrics</text>
+  <line x1="585" y1="145" x2="585" y2="290" stroke="#3E8635" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowGreen)"/>
+  <text x="600" y="220" fill="#3E8635" font-size="10">observe</text>
+
+  <!-- ApplicationIntent CRD -->
+  <rect x="260" y="290" width="170" height="60" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="345" y="313" text-anchor="middle" fill="#4F3D8A" font-weight="600" font-size="12">ApplicationIntent CRs</text>
+  <text x="345" y="333" text-anchor="middle" fill="#6753AC" font-size="10">SLA + scaling constraints</text>
+  <path d="M 540 145 Q 470 220 430 310" fill="none" stroke="#3E8635" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <text x="460" y="250" fill="#3E8635" font-size="10">create / query</text>
+
+  <!-- Intent Controller -->
+  <rect x="260" y="385" width="170" height="55" rx="8" fill="url(#gBlue)" filter="url(#shadow)"/>
+  <text x="345" y="410" text-anchor="middle" fill="white" font-weight="600" font-size="12">Intent Controller</text>
+  <text x="345" y="428" text-anchor="middle" fill="#B3D4FF" font-size="10">PoC 1.2 — auto-scales</text>
+  <line x1="345" y1="350" x2="345" y2="385" stroke="#0066CC" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <text x="360" y="372" fill="#0066CC" font-size="10">reconciles</text>
+
+  <!-- Prometheus -->
+  <rect x="500" y="385" width="170" height="55" rx="8" fill="url(#gRed)" filter="url(#shadow)"/>
+  <text x="585" y="410" text-anchor="middle" fill="white" font-weight="600" font-size="12">Prometheus</text>
+  <text x="585" y="428" text-anchor="middle" fill="#FFD0D0" font-size="10">Historical metrics</text>
+  <line x1="430" y1="412" x2="500" y2="412" stroke="#666" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrow)"/>
+  <text x="465" y="405" fill="#888" font-size="10">query</text>
+  <line x1="585" y1="350" x2="585" y2="385" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="5 3"/>
+</svg>
