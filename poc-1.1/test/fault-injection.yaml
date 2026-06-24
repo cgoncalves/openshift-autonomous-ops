@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fault-injector
+  namespace: default
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: dhcp-105-228.t5g-dev.eng.rdu2.dc.redhat.com
+  containers:
+    - name: stress
+      image: registry.access.redhat.com/ubi9/python-312:latest
+      command:
+        - python3
+        - -c
+        - |
+          import time
+          print("Starting memory stress...", flush=True)
+          chunks = []
+          try:
+              for i in range(40):
+                  chunks.append(b'X' * (256 * 1024 * 1024))
+                  print(f"Allocated {(i+1) * 256}MB", flush=True)
+                  time.sleep(1)
+          except MemoryError:
+              total = len(chunks) * 256
+              print(f"MemoryError at {total}MB - holding for 300s", flush=True)
+              time.sleep(300)
+      resources:
+        requests:
+          memory: "512Mi"
+        limits:
+          memory: "9Gi"

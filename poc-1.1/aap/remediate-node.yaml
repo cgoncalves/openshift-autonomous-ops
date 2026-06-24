@@ -1,0 +1,89 @@
+---
+- name: Remediate Degraded Node
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    node_name: "{{ node_name }}"
+    drain_timeout: "300"
+    grace_period: "30"
+
+  tasks:
+    - name: Get current node conditions
+      kubernetes.core.k8s_info:
+        kind: Node
+        name: "{{ node_name }}"
+      register: node_info
+
+    - name: Display node conditions
+      ansible.builtin.debug:
+        msg: >
+          Node {{ node_name }} conditions:
+          {% for c in node_info.resources[0].status.conditions %}
+          {{ c.type }}={{ c.status }}
+          {% endfor %}
+
+    - name: Cordon the node
+      kubernetes.core.k8s_drain:
+        state: cordon
+        name: "{{ node_name }}"
+
+    - name: Drain the node
+      kubernetes.core.k8s_drain:
+        state: drain
+        name: "{{ node_name }}"
+        delete_options:
+          delete_emptydir_data: true
+          ignore_daemonsets: true
+          grace_period: "{{ grace_period | int }}"
+          timeout: "{{ drain_timeout | int }}"
+
+    - name: Wait for workloads to reschedule
+      ansible.builtin.pause:
+        seconds: 30
+
+    - name: Verify pods rescheduled to other nodes
+      kubernetes.core.k8s_info:
+        kind: Pod
+        field_selectors:
+          - "spec.nodeName={{ node_name }}"
+          - "status.phase=Running"
+      register: remaining_pods
+
+    - name: Report remaining pods
+      ansible.builtin.debug:
+        msg: "{{ remaining_pods.resources | length }} non-DaemonSet pods still on {{ node_name }}"
+
+    - name: Wait for node conditions to stabilize
+      kubernetes.core.k8s_info:
+        kind: Node
+        name: "{{ node_name }}"
+      register: node_post_drain
+      until: >
+        node_post_drain.resources[0].status.conditions |
+        selectattr('type', 'equalto', 'MemoryPressure') |
+        map(attribute='status') | first == "False"
+      retries: 20
+      delay: 15
+      ignore_errors: true
+
+    - name: Uncordon the node
+      kubernetes.core.k8s_drain:
+        state: uncordon
+        name: "{{ node_name }}"
+
+    - name: Verify node is Ready
+      kubernetes.core.k8s_info:
+        kind: Node
+        name: "{{ node_name }}"
+      register: node_final
+      until: >
+        node_final.resources[0].status.conditions |
+        selectattr('type', 'equalto', 'Ready') |
+        map(attribute='status') | first == "True"
+      retries: 10
+      delay: 10
+
+    - name: Report result
+      ansible.builtin.debug:
+        msg: "Node {{ node_name }} remediation complete. Node is Ready and schedulable."

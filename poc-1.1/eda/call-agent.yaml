@@ -1,0 +1,32 @@
+---
+- name: Forward Event to Self-Healing Agent
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    agent_url: "http://self-healing-agent.llama-stack.svc.cluster.local:8000"
+
+  tasks:
+    - name: Send event to AI agent
+      ansible.builtin.uri:
+        url: "{{ agent_url }}/api/remediate"
+        method: POST
+        body_format: json
+        body:
+          event_type: "{{ event_type }}"
+          node_name: "{{ node_name }}"
+          severity: "{{ severity }}"
+          timestamp: "{{ now(utc=true) | string }}"
+        headers:
+          Content-Type: application/json
+        status_code: [200, 202]
+        timeout: 300
+      register: agent_response
+
+    - name: Log agent response
+      ansible.builtin.debug:
+        msg: |
+          Agent Response:
+          Status: {{ agent_response.json.status | default('unknown') }}
+          Action: {{ agent_response.json.action | default('none') }}
+          Details: {{ agent_response.json.details | default('') }}

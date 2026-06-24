@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+
+# Go binaries
+*.exe
+poc-1.2/sample-app/sample-app
+poc-1.2/controller/bin/

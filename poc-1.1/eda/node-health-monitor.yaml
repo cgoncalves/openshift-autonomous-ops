@@ -1,0 +1,51 @@
+---
+- name: Monitor Node Health and Forward to AI Agent
+  hosts: localhost
+  sources:
+    - name: node-watcher
+      sabre1041.eda.k8s:
+        api_version: v1
+        kind: Node
+
+  rules:
+    - name: Node MemoryPressure Detected
+      condition: >
+        event.type == "MODIFIED" and
+        event.resource.status is defined and
+        event.resource.status.conditions is defined and
+        event.resource.status.conditions is select("item", "type == 'MemoryPressure' and status == 'True'")
+      action:
+        run_playbook:
+          name: call-agent.yaml
+          extra_vars:
+            event_type: "MemoryPressure"
+            node_name: "{{ event.resource.metadata.name }}"
+            severity: "critical"
+
+    - name: Node DiskPressure Detected
+      condition: >
+        event.type == "MODIFIED" and
+        event.resource.status is defined and
+        event.resource.status.conditions is defined and
+        event.resource.status.conditions is select("item", "type == 'DiskPressure' and status == 'True'")
+      action:
+        run_playbook:
+          name: call-agent.yaml
+          extra_vars:
+            event_type: "DiskPressure"
+            node_name: "{{ event.resource.metadata.name }}"
+            severity: "critical"
+
+    - name: Node NotReady Detected
+      condition: >
+        event.type == "MODIFIED" and
+        event.resource.status is defined and
+        event.resource.status.conditions is defined and
+        event.resource.status.conditions is select("item", "type == 'Ready' and status == 'False'")
+      action:
+        run_playbook:
+          name: call-agent.yaml
+          extra_vars:
+            event_type: "NotReady"
+            node_name: "{{ event.resource.metadata.name }}"
+            severity: "critical"

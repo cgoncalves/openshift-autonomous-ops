@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" font-family="'Segoe UI',Roboto,Arial,sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#444"/></marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#CC0000"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#0066CC"/></marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#EC7A08"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#3E8635"/></marker>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.1"/></filter>
+  </defs>
+
+  <rect width="900" height="700" rx="12" fill="#FAFAFA"/>
+  <text x="450" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1A1A1A">PoC 1.1 — Self-Healing Use Case Flow</text>
+
+  <!-- Step 1 -->
+  <circle cx="450" cy="85" r="16" fill="#CC0000"/>
+  <text x="450" y="90" text-anchor="middle" fill="white" font-weight="700" font-size="14">1</text>
+  <rect x="310" y="105" width="280" height="55" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="450" y="128" text-anchor="middle" font-weight="600" fill="#B71C1C">Fault Injected</text>
+  <text x="450" y="147" text-anchor="middle" fill="#CC0000" font-size="11">Memory stress → MemoryPressure / DiskPressure</text>
+
+  <line x1="450" y1="160" x2="450" y2="185" stroke="#CC0000" stroke-width="2" marker-end="url(#arrowRed)"/>
+  <text x="470" y="177" fill="#888" font-size="10">kubelet detects</text>
+
+  <!-- Step 2 -->
+  <circle cx="450" cy="205" r="16" fill="#CC0000"/>
+  <text x="450" y="210" text-anchor="middle" fill="white" font-weight="700" font-size="14">2</text>
+  <rect x="310" y="225" width="280" height="55" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="450" y="248" text-anchor="middle" font-weight="600" fill="#B71C1C">Prometheus Alert Fires</text>
+  <text x="450" y="267" text-anchor="middle" fill="#CC0000" font-size="11">KubeNodeMemoryPressure → AlertManager</text>
+
+  <!-- Fork -->
+  <line x1="380" y1="280" x2="200" y2="310" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="520" y1="280" x2="700" y2="310" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="270" y="293" fill="#888" font-size="10">webhook</text>
+  <text x="620" y="293" fill="#888" font-size="10">webhook</text>
+
+  <!-- Step 3a: Agent -->
+  <circle cx="200" cy="330" r="16" fill="#0066CC"/>
+  <text x="200" y="335" text-anchor="middle" fill="white" font-weight="700" font-size="14">3</text>
+  <rect x="60" y="350" width="280" height="45" rx="8" fill="#E3F2FD" stroke="#0066CC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="200" y="373" text-anchor="middle" font-weight="600" fill="#0D47A1">Self-Healing Agent receives alert</text>
+  <text x="200" y="388" text-anchor="middle" fill="#0066CC" font-size="11">/api/alert (dedup: 10 min cooldown)</text>
+
+  <!-- Step 3b: EDA -->
+  <circle cx="700" cy="330" r="16" fill="#EC7A08"/>
+  <text x="700" y="335" text-anchor="middle" fill="white" font-weight="700" font-size="14">3</text>
+  <rect x="560" y="350" width="280" height="45" rx="8" fill="#FFF3E0" stroke="#EC7A08" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="700" y="373" text-anchor="middle" font-weight="600" fill="#E65100">EDA Rulebook matches rule</text>
+  <text x="700" y="388" text-anchor="middle" fill="#EC7A08" font-size="11">run_job_template → AAP (audit trail)</text>
+
+  <line x1="200" y1="395" x2="200" y2="420" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Step 4: Triage -->
+  <circle cx="200" cy="440" r="16" fill="#0066CC"/>
+  <text x="200" y="445" text-anchor="middle" fill="white" font-weight="700" font-size="14">4</text>
+  <rect x="60" y="460" width="280" height="55" rx="8" fill="#E3F2FD" stroke="#0066CC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="200" y="483" text-anchor="middle" font-weight="600" fill="#0D47A1">Triage Agent</text>
+  <text x="200" y="502" text-anchor="middle" fill="#0066CC" font-size="11">Queries cluster via MCP → diagnoses root cause</text>
+
+  <rect x="400" y="465" width="130" height="35" rx="6" fill="#E8F5E3" stroke="#3E8635" stroke-width="1"/>
+  <text x="465" y="487" text-anchor="middle" fill="#2D6B27" font-size="11">MCP Server</text>
+  <line x1="340" y1="483" x2="400" y2="483" stroke="#3E8635" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowGreen)"/>
+
+  <rect x="570" y="465" width="130" height="35" rx="6" fill="#F0E6FF" stroke="#6753AC" stroke-width="1"/>
+  <text x="635" y="487" text-anchor="middle" fill="#4F3D8A" font-size="11">LLM (Qwen 35B)</text>
+  <line x1="530" y1="483" x2="570" y2="483" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+  <line x1="200" y1="515" x2="200" y2="535" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Step 5: Remediation -->
+  <circle cx="200" cy="555" r="16" fill="#EC7A08"/>
+  <text x="200" y="560" text-anchor="middle" fill="white" font-weight="700" font-size="14">5</text>
+  <rect x="60" y="575" width="280" height="55" rx="8" fill="#FFF3E0" stroke="#EC7A08" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="200" y="598" text-anchor="middle" font-weight="600" fill="#E65100">Remediation Agent → AAP</text>
+  <text x="200" y="617" text-anchor="middle" fill="#EC7A08" font-size="11">Decides cordon_and_drain → launches AAP job</text>
+
+  <rect x="400" y="575" width="200" height="55" rx="6" fill="#FFF3E0" stroke="#EC7A08" stroke-width="1"/>
+  <text x="500" y="595" text-anchor="middle" fill="#E65100" font-weight="600" font-size="11">AAP Job Execution</text>
+  <text x="500" y="612" text-anchor="middle" fill="#EC7A08" font-size="10">cordon → drain → wait</text>
+  <text x="500" y="624" text-anchor="middle" fill="#EC7A08" font-size="10">→ uncordon → verify Ready</text>
+  <line x1="340" y1="600" x2="400" y2="600" stroke="#EC7A08" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+
+  <line x1="200" y1="630" x2="200" y2="650" stroke="#3E8635" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- Step 6: Verification -->
+  <circle cx="200" cy="670" r="16" fill="#3E8635"/>
+  <text x="200" y="675" text-anchor="middle" fill="white" font-weight="700" font-size="14">6</text>
+  <rect x="230" y="658" width="280" height="30" rx="6" fill="#E8F5E3" stroke="#3E8635" stroke-width="1.5"/>
+  <text x="370" y="678" text-anchor="middle" font-weight="600" fill="#2D6B27">Verification Agent confirms node healthy ✓</text>
+
+  <!-- Decision Ledger -->
+  <rect x="650" y="555" width="190" height="80" rx="8" fill="white" stroke="#999" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="745" y="578" text-anchor="middle" font-weight="600" fill="#333" font-size="12">Decision Ledger</text>
+  <text x="745" y="596" text-anchor="middle" fill="#666" font-size="10">Triage: diagnosis + confidence</text>
+  <text x="745" y="611" text-anchor="middle" fill="#666" font-size="10">Action: cordon_and_drain</text>
+  <text x="745" y="626" text-anchor="middle" fill="#666" font-size="10">Verification: VERIFIED ✓</text>
+  <line x1="600" y1="600" x2="650" y2="600" stroke="#999" stroke-width="1" stroke-dasharray="4 3"/>
+
+  <!-- Timing -->
+  <text x="55" y="485" fill="#0066CC" font-size="10" font-weight="600">~20s</text>
+  <text x="55" y="600" fill="#EC7A08" font-size="10" font-weight="600">~5s</text>
+  <text x="55" y="675" fill="#3E8635" font-size="10" font-weight="600">~19s</text>
+  <text x="790" y="690" fill="#888" font-size="10">Total: ~44s</text>
+</svg>

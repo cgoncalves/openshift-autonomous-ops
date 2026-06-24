@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" font-family="'Segoe UI',Roboto,Arial,sans-serif" font-size="13">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#666"/></marker>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#6753AC"/></marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3E8635"/></marker>
+    <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#EC7A08"/></marker>
+    <linearGradient id="gRed" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#EE0000"/><stop offset="100%" stop-color="#CC0000"/></linearGradient>
+    <linearGradient id="gBlue" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0066CC"/><stop offset="100%" stop-color="#004499"/></linearGradient>
+    <linearGradient id="gGreen" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#3E8635"/><stop offset="100%" stop-color="#2D6B27"/></linearGradient>
+    <linearGradient id="gPurple" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#6753AC"/><stop offset="100%" stop-color="#4F3D8A"/></linearGradient>
+    <linearGradient id="gOrange" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#EC7A08"/><stop offset="100%" stop-color="#C96A06"/></linearGradient>
+  </defs>
+
+  <rect width="900" height="620" rx="12" fill="#F5F5F5"/>
+  <text x="450" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1A1A1A">PoC 1.1 — Agentic Cluster Self-Healing: Architecture</text>
+
+  <!-- OpenShift Cluster boundary -->
+  <rect x="30" y="55" width="840" height="540" rx="10" fill="none" stroke="#CC0000" stroke-width="2" stroke-dasharray="8 4"/>
+  <text x="50" y="75" font-size="12" fill="#CC0000" font-weight="600">OpenShift Cluster</text>
+
+  <!-- Row 1: Monitoring -->
+  <rect x="60" y="90" width="180" height="70" rx="8" fill="url(#gRed)" filter="url(#shadow)"/>
+  <text x="150" y="118" text-anchor="middle" fill="white" font-weight="600">Prometheus</text>
+  <text x="150" y="138" text-anchor="middle" fill="#FFD0D0" font-size="11">Metrics &amp; Alerts</text>
+
+  <rect x="260" y="90" width="180" height="70" rx="8" fill="url(#gRed)" filter="url(#shadow)"/>
+  <text x="350" y="118" text-anchor="middle" fill="white" font-weight="600">AlertManager</text>
+  <text x="350" y="138" text-anchor="middle" fill="#FFD0D0" font-size="11">Webhook dispatch</text>
+
+  <line x1="240" y1="125" x2="260" y2="125" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+  <!-- EDA -->
+  <rect x="500" y="90" width="180" height="70" rx="8" fill="url(#gOrange)" filter="url(#shadow)"/>
+  <text x="590" y="118" text-anchor="middle" fill="white" font-weight="600">EDA Controller</text>
+  <text x="590" y="138" text-anchor="middle" fill="#FFE8CC" font-size="11">Event-Driven Ansible</text>
+  <line x1="440" y1="125" x2="500" y2="125" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  <text x="470" y="118" text-anchor="middle" fill="#888" font-size="10">webhook</text>
+
+  <!-- Agent Service -->
+  <rect x="60" y="195" width="380" height="190" rx="10" fill="white" stroke="#0066CC" stroke-width="2" filter="url(#shadow)"/>
+  <text x="80" y="218" font-size="12" fill="#0066CC" font-weight="600">Self-Healing Agent Service (FastAPI)</text>
+
+  <rect x="80" y="230" width="340" height="42" rx="6" fill="url(#gBlue)"/>
+  <text x="250" y="248" text-anchor="middle" fill="white" font-weight="600">Triage Agent</text>
+  <text x="250" y="264" text-anchor="middle" fill="#B3D4FF" font-size="10">Diagnose via MCP tools + LLM reasoning</text>
+
+  <rect x="80" y="280" width="340" height="42" rx="6" fill="url(#gBlue)"/>
+  <text x="250" y="298" text-anchor="middle" fill="white" font-weight="600">Remediation Agent</text>
+  <text x="250" y="314" text-anchor="middle" fill="#B3D4FF" font-size="10">Decide action + trigger AAP job</text>
+
+  <rect x="80" y="330" width="340" height="42" rx="6" fill="url(#gBlue)"/>
+  <text x="250" y="348" text-anchor="middle" fill="white" font-weight="600">Verification Agent</text>
+  <text x="250" y="364" text-anchor="middle" fill="#B3D4FF" font-size="10">Confirm fix via MCP tools</text>
+
+  <path d="M 350 160 L 250 195" fill="none" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  <text x="310" y="175" text-anchor="middle" fill="#888" font-size="10">webhook</text>
+
+  <path d="M 590 160 L 590 195" fill="none" stroke="#666" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  <text x="610" y="180" fill="#888" font-size="10">run_job_template</text>
+
+  <!-- AAP Controller -->
+  <rect x="490" y="195" width="360" height="95" rx="10" fill="white" stroke="#EC7A08" stroke-width="2" filter="url(#shadow)"/>
+  <text x="510" y="218" font-size="12" fill="#EC7A08" font-weight="600">AAP 2.7 Controller</text>
+  <rect x="510" y="230" width="320" height="48" rx="6" fill="url(#gOrange)"/>
+  <text x="670" y="250" text-anchor="middle" fill="white" font-weight="600">Job Template: Remediate Node</text>
+  <text x="670" y="265" text-anchor="middle" fill="#FFE8CC" font-size="10">cordon → drain → wait → uncordon → verify</text>
+
+  <!-- LlamaStack + MCP -->
+  <rect x="490" y="310" width="170" height="75" rx="8" fill="url(#gPurple)" filter="url(#shadow)"/>
+  <text x="575" y="338" text-anchor="middle" fill="white" font-weight="600">LlamaStack</text>
+  <text x="575" y="355" text-anchor="middle" fill="#D4C4F0" font-size="11">OpenShift AI</text>
+  <text x="575" y="370" text-anchor="middle" fill="#D4C4F0" font-size="10">Inference proxy</text>
+
+  <rect x="680" y="310" width="170" height="75" rx="8" fill="url(#gGreen)" filter="url(#shadow)"/>
+  <text x="765" y="338" text-anchor="middle" fill="white" font-weight="600">MCP Server</text>
+  <text x="765" y="355" text-anchor="middle" fill="#C4E8BF" font-size="11">Cluster observation</text>
+  <text x="765" y="370" text-anchor="middle" fill="#C4E8BF" font-size="10">Streamable HTTP</text>
+
+  <path d="M 440 290 L 490 340" fill="none" stroke="#6753AC" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+  <path d="M 440 350 L 680 350" fill="none" stroke="#3E8635" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowGreen)"/>
+  <text x="560" y="343" text-anchor="middle" fill="#3E8635" font-size="10">MCP protocol</text>
+  <path d="M 440 310 L 490 255" fill="none" stroke="#EC7A08" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+  <text x="478" y="278" fill="#EC7A08" font-size="10">API</text>
+
+  <!-- External LLM -->
+  <rect x="490" y="410" width="170" height="60" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" filter="url(#shadow)"/>
+  <text x="575" y="435" text-anchor="middle" fill="#4F3D8A" font-weight="600">External LLM</text>
+  <text x="575" y="453" text-anchor="middle" fill="#6753AC" font-size="10">Qwen 3.6 35B (LiteLLM)</text>
+  <line x1="575" y1="385" x2="575" y2="410" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowPurple)"/>
+
+  <!-- Cluster Nodes -->
+  <rect x="60" y="420" width="380" height="155" rx="10" fill="white" stroke="#3E8635" stroke-width="2" filter="url(#shadow)"/>
+  <text x="80" y="443" font-size="12" fill="#3E8635" font-weight="600">Cluster Nodes</text>
+
+  <rect x="80" y="455" width="155" height="50" rx="6" fill="#E8F5E3" stroke="#3E8635" stroke-width="1"/>
+  <text x="157" y="475" text-anchor="middle" fill="#2D6B27" font-weight="600" font-size="11">Worker 1</text>
+  <text x="157" y="495" text-anchor="middle" fill="#3E8635" font-size="10">AI workloads</text>
+
+  <rect x="255" y="455" width="165" height="50" rx="6" fill="#FFF3E0" stroke="#EC7A08" stroke-width="1.5"/>
+  <text x="337" y="475" text-anchor="middle" fill="#C96A06" font-weight="600" font-size="11">Worker 2</text>
+  <text x="337" y="495" text-anchor="middle" fill="#EC7A08" font-size="10">Fault injection target</text>
+
+  <rect x="80" y="515" width="340" height="45" rx="6" fill="#F5F5F5" stroke="#999" stroke-width="1"/>
+  <text x="250" y="542" text-anchor="middle" fill="#666" font-size="11">Control Plane Nodes</text>
+
+  <path d="M 590 290 Q 590 400 420 460" fill="none" stroke="#EC7A08" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+  <text x="530" y="395" fill="#EC7A08" font-size="10">cordon/drain</text>
+
+  <path d="M 765 385 Q 765 500 440 500" fill="none" stroke="#3E8635" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowGreen)"/>
+  <text x="630" y="490" fill="#3E8635" font-size="10">observe</text>
+
+  <!-- PostgreSQL -->
+  <rect x="700" y="420" width="130" height="50" rx="8" fill="#E8E8E8" stroke="#999" stroke-width="1" filter="url(#shadow)"/>
+  <text x="765" y="443" text-anchor="middle" fill="#444" font-weight="600" font-size="11">PostgreSQL</text>
+  <text x="765" y="458" text-anchor="middle" fill="#666" font-size="10">LlamaStack kvstore</text>
+</svg>
