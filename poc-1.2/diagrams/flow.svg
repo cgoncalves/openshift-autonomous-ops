@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 680" font-family="'Segoe UI',Roboto,Arial,sans-serif" font-size="13">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.1"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#444"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#3E8635"/></marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#CC0000"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#0066CC"/></marker>
+  </defs>
+
+  <rect width="800" height="680" rx="12" fill="#FAFAFA"/>
+  <text x="400" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1A1A1A">PoC 1.2 — Intent-Driven Scaling: Flow</text>
+
+  <!-- Step 1: Create intent -->
+  <circle cx="80" cy="80" r="16" fill="#6753AC"/>
+  <text x="80" y="85" text-anchor="middle" fill="white" font-weight="700">1</text>
+  <rect x="110" y="65" width="620" height="45" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="87" fill="#4F3D8A" font-weight="600">Operator creates ApplicationIntent:</text>
+  <text x="420" y="87" fill="#333">"Keep p99 latency under 50ms for sample-app"</text>
+  <text x="130" y="103" fill="#6753AC" font-size="10">constraints: minReplicas=1, maxReplicas=10</text>
+
+  <!-- Step 2: Baseline -->
+  <circle cx="80" cy="150" r="16" fill="#3E8635"/>
+  <text x="80" y="155" text-anchor="middle" fill="white" font-weight="700">2</text>
+  <rect x="110" y="135" width="620" height="45" rx="8" fill="#E8F5E3" stroke="#3E8635" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="157" fill="#2D6B27" font-weight="600">Baseline — Fulfilled</text>
+  <text x="130" y="173" fill="#3E8635" font-size="11">P99: 49ms (within SLA) | Replicas: 1 | State: Fulfilled</text>
+  <line x1="400" y1="110" x2="400" y2="135" stroke="#444" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Step 3: Load -->
+  <circle cx="80" cy="220" r="16" fill="#EC7A08"/>
+  <text x="80" y="225" text-anchor="middle" fill="white" font-weight="700">3</text>
+  <rect x="110" y="205" width="620" height="45" rx="8" fill="#FFF3E0" stroke="#EC7A08" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="227" fill="#E65100" font-weight="600">Load injected — 80 concurrent requests</text>
+  <text x="130" y="243" fill="#EC7A08" font-size="11">P99 spikes to 274ms → SLA breached (274ms > 50ms)</text>
+  <line x1="400" y1="180" x2="400" y2="205" stroke="#444" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Step 4: Scale up -->
+  <circle cx="80" cy="290" r="16" fill="#0066CC"/>
+  <text x="80" y="295" text-anchor="middle" fill="white" font-weight="700">4</text>
+  <rect x="110" y="275" width="620" height="55" rx="8" fill="#E3F2FD" stroke="#0066CC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="297" fill="#0D47A1" font-weight="600">Controller scales up — Scaling</text>
+  <text x="130" y="313" fill="#0066CC" font-size="11">1 → 2 → 4 → 6 → 8 → 10 replicas (every 15s reconcile)</text>
+  <text x="130" y="326" fill="#0066CC" font-size="10">Events: SLABreached warnings logged for each scale-up</text>
+  <line x1="400" y1="250" x2="400" y2="275" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Step 5: Max replicas -->
+  <circle cx="80" cy="370" r="16" fill="#CC0000"/>
+  <text x="80" y="375" text-anchor="middle" fill="white" font-weight="700">5</text>
+  <rect x="110" y="355" width="620" height="45" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="377" fill="#B71C1C" font-weight="600">At max replicas — Degraded</text>
+  <text x="130" y="393" fill="#CC0000" font-size="11">P99: 88ms (still above 50ms SLA) | Replicas: 10 (max) | Can't scale further</text>
+  <line x1="400" y1="330" x2="400" y2="355" stroke="#CC0000" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+  <!-- Step 6: Latency improves -->
+  <circle cx="80" cy="440" r="16" fill="#3E8635"/>
+  <text x="80" y="445" text-anchor="middle" fill="white" font-weight="700">6</text>
+  <rect x="110" y="425" width="620" height="45" rx="8" fill="#E8F5E3" stroke="#3E8635" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="447" fill="#2D6B27" font-weight="600">Load stops — latency drops</text>
+  <text x="130" y="463" fill="#3E8635" font-size="11">P99 drops below SLA/2 (25ms) → controller starts scaling down</text>
+  <line x1="400" y1="400" x2="400" y2="425" stroke="#3E8635" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- Step 7: Scale down -->
+  <circle cx="80" cy="510" r="16" fill="#0066CC"/>
+  <text x="80" y="515" text-anchor="middle" fill="white" font-weight="700">7</text>
+  <rect x="110" y="495" width="620" height="45" rx="8" fill="#E3F2FD" stroke="#0066CC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="517" fill="#0D47A1" font-weight="600">Controller scales down — Scaling</text>
+  <text x="130" y="533" fill="#0066CC" font-size="11">10 → 9 → 8 → ... → 1 replica | Events: ScaleDown logged</text>
+  <line x1="400" y1="470" x2="400" y2="495" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Step 8: Fulfilled -->
+  <circle cx="80" cy="580" r="16" fill="#3E8635"/>
+  <text x="80" y="585" text-anchor="middle" fill="white" font-weight="700">8</text>
+  <rect x="110" y="565" width="620" height="40" rx="8" fill="#E8F5E3" stroke="#3E8635" stroke-width="2" filter="url(#shadow)"/>
+  <text x="130" y="590" fill="#2D6B27" font-weight="700">Back to baseline — Fulfilled ✓</text>
+  <text x="430" y="590" fill="#3E8635" font-size="11">P99: 49ms | Replicas: 1 | SLA met</text>
+  <line x1="400" y1="540" x2="400" y2="565" stroke="#3E8635" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- Cycle indicator -->
+  <path d="M 740 590 Q 770 400 740 80" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="755" y="340" fill="#999" font-size="10" transform="rotate(90 755 340)">continuous reconcile loop</text>
+
+  <!-- Timing -->
+  <text x="700" y="660" text-anchor="end" fill="#888" font-size="10">Reconcile interval: 15s</text>
+</svg>

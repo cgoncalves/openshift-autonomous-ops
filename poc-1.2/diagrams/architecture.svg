@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="'Segoe UI',Roboto,Arial,sans-serif" font-size="13">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#666"/></marker>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#0066CC"/></marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3E8635"/></marker>
+    <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#CC0000"/></marker>
+    <linearGradient id="gBlue" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0066CC"/><stop offset="100%" stop-color="#004499"/></linearGradient>
+    <linearGradient id="gGreen" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#3E8635"/><stop offset="100%" stop-color="#2D6B27"/></linearGradient>
+    <linearGradient id="gRed" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#EE0000"/><stop offset="100%" stop-color="#CC0000"/></linearGradient>
+    <linearGradient id="gPurple" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#6753AC"/><stop offset="100%" stop-color="#4F3D8A"/></linearGradient>
+  </defs>
+
+  <rect width="800" height="480" rx="12" fill="#F5F5F5"/>
+  <text x="400" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1A1A1A">PoC 1.2 — Intent-Driven Application Scaling: Architecture</text>
+
+  <!-- OpenShift boundary -->
+  <rect x="30" y="50" width="740" height="410" rx="10" fill="none" stroke="#CC0000" stroke-width="2" stroke-dasharray="8 4"/>
+  <text x="50" y="70" font-size="12" fill="#CC0000" font-weight="600">OpenShift Cluster</text>
+
+  <!-- Operator -->
+  <rect x="60" y="90" width="150" height="65" rx="8" fill="white" stroke="#333" stroke-width="2" filter="url(#shadow)"/>
+  <text x="135" y="118" text-anchor="middle" fill="#333" font-weight="600">Operator</text>
+  <text x="135" y="138" text-anchor="middle" fill="#666" font-size="11">creates Intent CR</text>
+
+  <!-- ApplicationIntent CR -->
+  <rect x="270" y="85" width="240" height="75" rx="8" fill="url(#gPurple)" filter="url(#shadow)"/>
+  <text x="390" y="110" text-anchor="middle" fill="white" font-weight="600">ApplicationIntent CR</text>
+  <text x="390" y="128" text-anchor="middle" fill="#D4C4F0" font-size="11">sla.p99LatencyMs: 50</text>
+  <text x="390" y="145" text-anchor="middle" fill="#D4C4F0" font-size="11">constraints: min=1, max=10</text>
+  <line x1="210" y1="122" x2="270" y2="122" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Intent Controller -->
+  <rect x="270" y="200" width="240" height="80" rx="8" fill="url(#gBlue)" filter="url(#shadow)"/>
+  <text x="390" y="228" text-anchor="middle" fill="white" font-weight="600">Intent Controller</text>
+  <text x="390" y="248" text-anchor="middle" fill="#B3D4FF" font-size="11">Go / kubebuilder</text>
+  <text x="390" y="263" text-anchor="middle" fill="#B3D4FF" font-size="10">Reconciles every 15s</text>
+  <line x1="390" y1="160" x2="390" y2="200" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <text x="405" y="185" fill="#0066CC" font-size="10">watches</text>
+
+  <!-- Prometheus -->
+  <rect x="580" y="200" width="160" height="80" rx="8" fill="url(#gRed)" filter="url(#shadow)"/>
+  <text x="660" y="228" text-anchor="middle" fill="white" font-weight="600">Prometheus</text>
+  <text x="660" y="248" text-anchor="middle" fill="#FFD0D0" font-size="11">Thanos Querier</text>
+  <text x="660" y="263" text-anchor="middle" fill="#FFD0D0" font-size="10">p99 latency metrics</text>
+  <line x1="510" y1="240" x2="580" y2="240" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowRed)"/>
+  <text x="545" y="233" fill="#CC0000" font-size="10">query</text>
+
+  <!-- Sample App -->
+  <rect x="270" y="330" width="240" height="80" rx="8" fill="url(#gGreen)" filter="url(#shadow)"/>
+  <text x="390" y="358" text-anchor="middle" fill="white" font-weight="600">Sample App (Deployment)</text>
+  <text x="390" y="378" text-anchor="middle" fill="#C4E8BF" font-size="11">/api/data + /metrics</text>
+  <text x="390" y="393" text-anchor="middle" fill="#C4E8BF" font-size="10">Replicas: scaled by controller</text>
+
+  <!-- Arrow: Controller scales App -->
+  <line x1="390" y1="280" x2="390" y2="330" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <text x="405" y="310" fill="#0066CC" font-size="10">scale replicas</text>
+
+  <!-- Arrow: Prometheus scrapes App -->
+  <path d="M 660 280 Q 660 370 510 370" fill="none" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowRed)"/>
+  <text x="600" y="340" fill="#CC0000" font-size="10">scrape /metrics</text>
+
+  <!-- Load Generator -->
+  <rect x="60" y="340" width="150" height="60" rx="8" fill="#FFF3E0" stroke="#EC7A08" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="135" y="365" text-anchor="middle" fill="#E65100" font-weight="600">Load Generator</text>
+  <text x="135" y="383" text-anchor="middle" fill="#EC7A08" font-size="10">80 concurrent requests</text>
+  <line x1="210" y1="370" x2="270" y2="370" stroke="#EC7A08" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="240" y="363" fill="#EC7A08" font-size="10">traffic</text>
+
+  <!-- Status box -->
+  <rect x="580" y="90" width="160" height="75" rx="8" fill="white" stroke="#6753AC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="660" y="113" text-anchor="middle" fill="#4F3D8A" font-weight="600" font-size="12">Intent Status</text>
+  <text x="660" y="133" text-anchor="middle" fill="#666" font-size="10">State: Fulfilled / Degraded</text>
+  <text x="660" y="148" text-anchor="middle" fill="#666" font-size="10">P99: 49ms | Replicas: 1</text>
+  <path d="M 510 110 L 580 122" fill="none" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="545" y="108" fill="#6753AC" font-size="10">updates</text>
+</svg>

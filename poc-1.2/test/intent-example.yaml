@@ -1,0 +1,13 @@
+apiVersion: an.openshift.io/v1alpha1
+kind: ApplicationIntent
+metadata:
+  name: keep-latency-low
+  namespace: poc-1-2
+spec:
+  target:
+    deployment: sample-app
+  sla:
+    p99LatencyMs: 50
+  constraints:
+    minReplicas: 1
+    maxReplicas: 10

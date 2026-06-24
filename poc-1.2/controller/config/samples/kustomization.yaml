@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- an_v1alpha1_applicationintent.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples
