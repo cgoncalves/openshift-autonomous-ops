@@ -45,8 +45,8 @@ import (
 )
 
 const (
-	runtimeCheckInterval = 30 * time.Second
-	degradedThreshold    = 5 * time.Minute
+	runtimeCheckInterval = 15 * time.Second
+	degradedThreshold    = 90 * time.Second
 )
 
 type ApplicationIntentReconciler struct {
@@ -198,7 +198,9 @@ func (r *ApplicationIntentReconciler) reconcileApply(ctx context.Context, intent
 }
 
 // reconcileRuntime monitors fulfillment without calling the LLM.
+// If degraded for longer than the threshold, triggers AI re-analysis.
 func (r *ApplicationIntentReconciler) reconcileRuntime(ctx context.Context, intent *anv1alpha1.ApplicationIntent) (ctrl.Result, error) {
+	log := logf.FromContext(ctx)
 	ns := intent.Spec.Target.Namespace
 	if ns == "" {
 		ns = intent.Namespace
@@ -228,12 +230,20 @@ func (r *ApplicationIntentReconciler) reconcileRuntime(ctx context.Context, inte
 		LastChecked:     &now,
 	}
 
+	isDegraded := false
 	if !hpaExists {
 		fulfillment.State = "Active"
 		fulfillment.Message = "HPA not found — resources applied but HPA may have been deleted"
 	} else if hpa.Status.CurrentReplicas >= intent.Spec.Constraints.MaxReplicas {
+		cpuUtil := ""
+		for _, m := range hpa.Status.CurrentMetrics {
+			if m.Resource != nil && m.Resource.Name == "cpu" && m.Resource.Current.AverageUtilization != nil {
+				cpuUtil = fmt.Sprintf(", CPU utilization: %d%%", *m.Resource.Current.AverageUtilization)
+			}
+		}
+		isDegraded = true
 		fulfillment.State = "Degraded"
-		fulfillment.Message = fmt.Sprintf("HPA at max replicas (%d). SLA may be at risk.", hpa.Status.CurrentReplicas)
+		fulfillment.Message = fmt.Sprintf("HPA at max replicas (%d)%s. SLA may be at risk.", hpa.Status.CurrentReplicas, cpuUtil)
 		r.Recorder.Event(intent, "Warning", "Degraded", fulfillment.Message)
 	} else if hpa.Status.CurrentReplicas > hpa.Status.DesiredReplicas {
 		fulfillment.State = "Adapting"
@@ -246,6 +256,29 @@ func (r *ApplicationIntentReconciler) reconcileRuntime(ctx context.Context, inte
 		fulfillment.Message = "SLA met. HPA managing within constraints."
 	}
 
+	// Track degraded duration
+	if isDegraded {
+		if intent.Status.Fulfillment != nil && intent.Status.Fulfillment.DegradedSince != nil {
+			fulfillment.DegradedSince = intent.Status.Fulfillment.DegradedSince
+		} else {
+			fulfillment.DegradedSince = &now
+		}
+
+		degradedDuration := now.Time.Sub(fulfillment.DegradedSince.Time)
+		if degradedDuration >= degradedThreshold {
+			log.Info("Degraded for too long, escalating to AI re-analysis",
+				"duration", degradedDuration, "threshold", degradedThreshold)
+			r.Recorder.Eventf(intent, "Warning", "Escalation",
+				"Degraded for %s (threshold: %s). Triggering AI re-analysis.",
+				degradedDuration.Round(time.Second), degradedThreshold)
+
+			intent.Status.Fulfillment = fulfillment
+			return r.reconcileEscalation(ctx, intent, deployment, hpa)
+		}
+	} else {
+		fulfillment.DegradedSince = nil
+	}
+
 	intent.Status.Fulfillment = fulfillment
 	intent.Status.Phase = anv1alpha1.IntentPhase(fulfillment.State)
 	intent.Status.Message = fulfillment.Message
@@ -255,6 +288,131 @@ func (r *ApplicationIntentReconciler) reconcileRuntime(ctx context.Context, inte
 	}
 
 	return ctrl.Result{RequeueAfter: runtimeCheckInterval}, nil
+}
+
+// reconcileEscalation calls the LLM with runtime context to generate an updated recommendation.
+func (r *ApplicationIntentReconciler) reconcileEscalation(ctx context.Context, intent *anv1alpha1.ApplicationIntent, deployment *appsv1.Deployment, hpa *autoscalingv2.HorizontalPodAutoscaler) (ctrl.Result, error) {
+	log := logf.FromContext(ctx)
+	log.Info("AI escalation: re-analyzing with runtime context")
+
+	ns := intent.Spec.Target.Namespace
+	if ns == "" {
+		ns = intent.Namespace
+	}
+
+	// Build escalation prompt with runtime context
+	cpuUtil := "unknown"
+	cpuTarget := "unknown"
+	for _, m := range hpa.Status.CurrentMetrics {
+		if m.Resource != nil && m.Resource.Name == "cpu" && m.Resource.Current.AverageUtilization != nil {
+			cpuUtil = fmt.Sprintf("%d%%", *m.Resource.Current.AverageUtilization)
+		}
+	}
+	for _, m := range hpa.Spec.Metrics {
+		if m.Resource != nil && m.Resource.Name == "cpu" && m.Resource.Target.AverageUtilization != nil {
+			cpuTarget = fmt.Sprintf("%d%%", *m.Resource.Target.AverageUtilization)
+		}
+	}
+
+	var containers []string
+	for _, c := range deployment.Spec.Template.Spec.Containers {
+		req := c.Resources.Requests
+		lim := c.Resources.Limits
+		containers = append(containers, fmt.Sprintf(
+			"  - %s: requests(cpu=%s, memory=%s) limits(cpu=%s, memory=%s)",
+			c.Name, req.Cpu().String(), req.Memory().String(),
+			lim.Cpu().String(), lim.Memory().String(),
+		))
+	}
+
+	var objectives []string
+	for _, obj := range intent.Spec.Objectives {
+		objectives = append(objectives, fmt.Sprintf("- %s %s: %s", obj.Type, obj.Metric, obj.Target))
+	}
+
+	prompt := fmt.Sprintf(`The previous AI recommendation was applied but the SLA is STILL NOT MET.
+The HPA has been at max replicas for over %s and cannot scale further.
+
+CURRENT RUNTIME STATE:
+- Deployment: %s (namespace: %s)
+- HPA: %d/%d replicas (at max)
+- CPU utilization: %s (target was %s)
+- Current containers:
+%s
+
+ORIGINAL OBJECTIVES:
+%s
+
+CONSTRAINTS:
+- Max replicas: %d
+- Max CPU per pod: %s
+- Max memory per pod: %s
+
+The previous scaling-only strategy is insufficient. Analyze WHY the SLA
+cannot be met and generate UPDATED Kubernetes resource manifests that
+address the bottleneck. Consider:
+- Increasing CPU/memory limits if the workload is resource-constrained
+- Adjusting HPA target utilization percentage
+- Adding pod anti-affinity for better distribution
+- Any other Kubernetes-native approach
+
+For each resource, output it as a separate YAML document delimited by "---".
+Start with a comment block explaining your analysis and what changed from
+the previous recommendation.`,
+		intent.Status.Fulfillment.DegradedSince.Time.Sub(time.Now()).Abs().Round(time.Second),
+		intent.Spec.Target.Deployment, ns,
+		hpa.Status.CurrentReplicas, intent.Spec.Constraints.MaxReplicas,
+		cpuUtil, cpuTarget,
+		strings.Join(containers, "\n"),
+		strings.Join(objectives, "\n"),
+		intent.Spec.Constraints.MaxReplicas,
+		intent.Spec.Constraints.MaxCPUPerPod,
+		intent.Spec.Constraints.MaxMemoryPerPod,
+	)
+
+	r.setPhase(ctx, intent, anv1alpha1.PhaseAnalyzing, "Escalation: re-analyzing with runtime context...")
+	r.Recorder.Event(intent, "Normal", "ReAnalyzing", "AI re-analysis triggered due to prolonged degradation")
+
+	llmResponse, err := r.callLLM(ctx, prompt)
+	if err != nil {
+		log.Error(err, "Escalation LLM call failed")
+		r.setPhase(ctx, intent, anv1alpha1.PhaseDegraded,
+			fmt.Sprintf("Escalation failed: %v. Manual intervention required.", err))
+		return ctrl.Result{RequeueAfter: 60 * time.Second}, nil
+	}
+
+	resources, summary := r.parseLLMResponse(llmResponse)
+
+	now := metav1.Now()
+	intent.Status.Recommendation = &anv1alpha1.Recommendation{
+		Summary:     summary,
+		GeneratedAt: &now,
+		Resources:   resources,
+	}
+
+	if intent.Spec.AutoApprove {
+		intent.Status.Phase = anv1alpha1.PhaseApplying
+		intent.Status.Approved = true
+		intent.Status.Message = "Escalation: auto-approved updated recommendation."
+		r.Recorder.Event(intent, "Normal", "EscalationAutoApproved", "Updated recommendation auto-approved")
+	} else {
+		intent.Status.Phase = anv1alpha1.PhasePendingApproval
+		intent.Status.Approved = false
+		intent.Status.Message = "Escalation: updated recommendation ready for review."
+		r.Recorder.Event(intent, "Normal", "EscalationPendingApproval", "Updated AI recommendation ready for review")
+	}
+
+	// Reset degraded timer
+	if intent.Status.Fulfillment != nil {
+		intent.Status.Fulfillment.DegradedSince = nil
+	}
+
+	if err := r.Status().Update(ctx, intent); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	log.Info("Escalation recommendation generated", "resources", len(resources))
+	return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 }
 
 func (r *ApplicationIntentReconciler) buildAnalysisPrompt(intent *anv1alpha1.ApplicationIntent, deployment *appsv1.Deployment) string {

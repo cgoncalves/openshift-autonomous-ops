@@ -163,6 +163,9 @@ type Fulfillment struct {
 	LastChecked *metav1.Time `json:"lastChecked,omitempty"`
 
 	// +optional
+	DegradedSince *metav1.Time `json:"degradedSince,omitempty"`
+
+	// +optional
 	Message string `json:"message,omitempty"`
 }
 
