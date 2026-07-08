@@ -40,6 +40,19 @@ approve:
 	  -p '{"status":{"approved":true}}'
 	@echo "Approved. Watch: oc get applicationintent -n $(NS) -w"
 
+load:
+	oc delete job/load-generator -n $(NS) --ignore-not-found 2>/dev/null || true
+	oc apply -f ../poc-1.2/test/load-generator.yaml -n $(NS)
+	@echo "Load generator started (80 concurrent, 5 min)."
+	@echo "Watch scaling: oc get hpa -n $(NS) -w"
+	@echo "Watch intent:  oc get applicationintent -n $(NS) -w"
+
+heavy-load:
+	@echo "Starting heavy load (200 concurrent, 5 min) to trigger escalation..."
+	@echo "Run in parallel: watch 'oc get applicationintent,hpa -n $(NS)'"
+	oc apply -f test/heavy-load.yaml -n $(NS)
+	@echo "Heavy load job started. Watch for Degraded → Analyzing → PendingApproval."
+
 status:
 	@echo "=== ApplicationIntents ==="
 	@oc get applicationintent -n $(NS) 2>/dev/null || echo "No intents"
