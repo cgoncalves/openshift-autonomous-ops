@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 520" font-family="'Segoe UI',Roboto,Arial,sans-serif" font-size="13">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="'Segoe UI',Roboto,Arial,sans-serif" font-size="13">
   <defs>
     <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
     <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#666"/></marker>
@@ -9,14 +9,13 @@
     <linearGradient id="gBlue" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0066CC"/><stop offset="100%" stop-color="#004499"/></linearGradient>
     <linearGradient id="gGreen" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#3E8635"/><stop offset="100%" stop-color="#2D6B27"/></linearGradient>
     <linearGradient id="gPurple" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#6753AC"/><stop offset="100%" stop-color="#4F3D8A"/></linearGradient>
-    <linearGradient id="gRed" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#EE0000"/><stop offset="100%" stop-color="#CC0000"/></linearGradient>
   </defs>
 
-  <rect width="850" height="520" rx="12" fill="#F5F5F5"/>
-  <text x="425" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1A1A1A">PoC 1.4 — AI-Assisted Intent Configuration: Architecture</text>
+  <rect width="900" height="560" rx="12" fill="#F5F5F5"/>
+  <text x="450" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1A1A1A">PoC 1.4 — AI-Assisted Intent Configuration: Architecture</text>
 
   <!-- OpenShift boundary -->
-  <rect x="30" y="50" width="790" height="450" rx="10" fill="none" stroke="#CC0000" stroke-width="2" stroke-dasharray="8 4"/>
+  <rect x="30" y="50" width="840" height="485" rx="10" fill="none" stroke="#CC0000" stroke-width="2" stroke-dasharray="8 4"/>
   <text x="50" y="70" font-size="12" fill="#CC0000" font-weight="600">OpenShift Cluster</text>
 
   <!-- Phase labels -->
@@ -24,8 +23,8 @@
   <text x="110" y="97" text-anchor="middle" fill="#4F3D8A" font-weight="600" font-size="11">DESIGN TIME</text>
   <rect x="50" y="310" width="90" height="22" rx="4" fill="#3E8635" opacity="0.15"/>
   <text x="95" y="325" text-anchor="middle" fill="#2D6B27" font-weight="600" font-size="11">RUNTIME</text>
-  <rect x="600" y="310" width="100" height="22" rx="4" fill="#CC0000" opacity="0.15"/>
-  <text x="650" y="325" text-anchor="middle" fill="#CC0000" font-weight="600" font-size="11">EXCEPTION</text>
+  <rect x="580" y="310" width="100" height="22" rx="4" fill="#CC0000" opacity="0.15"/>
+  <text x="630" y="325" text-anchor="middle" fill="#CC0000" font-weight="600" font-size="11">ESCALATION</text>
 
   <!-- Operator -->
   <rect x="50" y="110" width="140" height="60" rx="8" fill="white" stroke="#333" stroke-width="2" filter="url(#shadow)"/>
@@ -48,11 +47,11 @@
   <text x="470" y="133" fill="#0066CC" font-size="10">watches</text>
 
   <!-- External LLM -->
-  <rect x="700" y="105" width="130" height="70" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" filter="url(#shadow)"/>
-  <text x="765" y="130" text-anchor="middle" fill="#4F3D8A" font-weight="600" font-size="12">External LLM</text>
-  <text x="765" y="148" text-anchor="middle" fill="#6753AC" font-size="10">Qwen 3.6 35B</text>
-  <text x="765" y="163" text-anchor="middle" fill="#6753AC" font-size="10">(design time only)</text>
-  <line x1="670" y1="140" x2="700" y2="140" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowPurple)"/>
+  <rect x="720" y="105" width="130" height="70" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" filter="url(#shadow)"/>
+  <text x="785" y="130" text-anchor="middle" fill="#4F3D8A" font-weight="600" font-size="12">External LLM</text>
+  <text x="785" y="148" text-anchor="middle" fill="#6753AC" font-size="10">Qwen 3.6 35B</text>
+  <text x="785" y="163" text-anchor="middle" fill="#6753AC" font-size="10">(design time only)</text>
+  <line x1="670" y1="140" x2="720" y2="140" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowPurple)"/>
 
   <!-- Approval arrow -->
   <path d="M 120 170 Q 120 220 340 220 Q 440 220 440 175" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrow)"/>
@@ -88,23 +87,43 @@
   <line x1="270" y1="395" x2="320" y2="395" stroke="#3E8635" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
   <text x="295" y="388" fill="#3E8635" font-size="10">scales</text>
 
-  <!-- Runtime monitor -->
-  <path d="M 490 395 Q 550 395 585 330 L 585 175" fill="none" stroke="#0066CC" stroke-width="1" stroke-dasharray="4 3"/>
-  <text x="560" y="285" fill="#0066CC" font-size="10">monitors</text>
+  <!-- Runtime monitor arrow -->
+  <path d="M 490 395 Q 540 395 585 330 L 585 175" fill="none" stroke="#0066CC" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="555" y="285" fill="#0066CC" font-size="10">monitors</text>
 
-  <!-- Escalation -->
-  <rect x="600" y="370" width="200" height="50" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="700" y="393" text-anchor="middle" fill="#B71C1C" font-weight="600" font-size="12">Escalation</text>
-  <text x="700" y="410" text-anchor="middle" fill="#CC0000" font-size="10">→ AI re-analysis or Human</text>
-  <path d="M 585 175 Q 700 280 700 370" fill="none" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowRed)"/>
-  <text x="680" y="280" fill="#CC0000" font-size="10">if Degraded</text>
+  <!-- Escalation: Degraded detection -->
+  <rect x="580" y="370" width="200" height="50" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="680" y="390" text-anchor="middle" fill="#B71C1C" font-weight="600" font-size="12">Degraded > 90s</text>
+  <text x="680" y="408" text-anchor="middle" fill="#CC0000" font-size="10">HPA at max, SLA still breached</text>
+
+  <!-- Arrow: controller detects degraded -->
+  <path d="M 585 175 Q 650 280 660 370" fill="none" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowRed)"/>
+  <text x="645" y="280" fill="#CC0000" font-size="10">if Degraded</text>
+
+  <!-- Escalation feedback loop: Degraded → LLM re-analysis → new recommendation → approval → updated resources -->
+  <!-- Arrow: Degraded → LLM (re-analysis) -->
+  <path d="M 780 370 L 785 175" fill="none" stroke="#CC0000" stroke-width="2" marker-end="url(#arrowRed)"/>
+  <text x="800" y="275" fill="#CC0000" font-size="10" font-weight="600">re-invoke</text>
+  <text x="800" y="288" fill="#CC0000" font-size="10" font-weight="600">LLM</text>
+
+  <!-- Arrow: LLM → updated recommendation in CR -->
+  <path d="M 720 155 Q 600 200 440 165" fill="none" stroke="#6753AC" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowPurple)"/>
+  <text x="570" y="195" fill="#6753AC" font-size="9">updated recommendation</text>
+
+  <!-- Arrow: operator re-approves -->
+  <path d="M 120 170 Q 80 440 580 440 Q 700 440 700 420" fill="none" stroke="#666" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <text x="350" y="460" fill="#888" font-size="10">operator reviews &amp; approves updated config</text>
+
+  <!-- Arrow: updated resources applied → back to runtime -->
+  <path d="M 580 395 Q 400 450 270 430" fill="none" stroke="#3E8635" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <text x="420" y="440" fill="#3E8635" font-size="10">updated resources</text>
 
   <!-- Phase separator lines -->
-  <line x1="40" y1="240" x2="810" y2="240" stroke="#999" stroke-width="0.5" stroke-dasharray="3 3"/>
-  <line x1="40" y1="350" x2="810" y2="350" stroke="#999" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="40" y1="240" x2="860" y2="240" stroke="#999" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="40" y1="350" x2="860" y2="350" stroke="#999" stroke-width="0.5" stroke-dasharray="3 3"/>
 
   <!-- Legend -->
-  <text x="50" y="470" fill="#6753AC" font-size="10">■ Design time: LLM analyzes + generates K8s configs</text>
-  <text x="350" y="470" fill="#3E8635" font-size="10">■ Runtime: HPA/PDB handle scaling (no LLM)</text>
-  <text x="630" y="470" fill="#CC0000" font-size="10">■ Exception: escalate if Degraded</text>
+  <text x="50" y="505" fill="#6753AC" font-size="10">■ Design time: LLM analyzes + generates K8s configs</text>
+  <text x="350" y="505" fill="#3E8635" font-size="10">■ Runtime: HPA/PDB handle scaling (no LLM)</text>
+  <text x="620" y="505" fill="#CC0000" font-size="10">■ Escalation: re-invoke LLM with runtime context</text>
 </svg>
