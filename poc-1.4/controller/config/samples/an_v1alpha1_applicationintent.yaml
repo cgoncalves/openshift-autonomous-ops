@@ -1,0 +1,9 @@
+apiVersion: an.openshift.io/v1alpha1
+kind: ApplicationIntent
+metadata:
+  labels:
+    app.kubernetes.io/name: controller
+    app.kubernetes.io/managed-by: kustomize
+  name: applicationintent-sample
+spec:
+  # TODO(user): Add fields here

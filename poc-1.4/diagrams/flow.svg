@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" font-family="'Segoe UI',Roboto,Arial,sans-serif" font-size="13">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.1"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#444"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#3E8635"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><path d="M0,0 L10,3.5 L0,7" fill="#0066CC"/></marker>
+  </defs>
+
+  <rect width="800" height="700" rx="12" fill="#FAFAFA"/>
+  <text x="400" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1A1A1A">PoC 1.4 — AI-Assisted Intent Configuration: Flow</text>
+
+  <!-- Phase labels -->
+  <rect x="680" y="65" width="100" height="22" rx="4" fill="#6753AC" opacity="0.15"/>
+  <text x="730" y="80" text-anchor="middle" fill="#4F3D8A" font-weight="600" font-size="11">DESIGN TIME</text>
+  <rect x="680" y="405" width="100" height="22" rx="4" fill="#3E8635" opacity="0.15"/>
+  <text x="730" y="420" text-anchor="middle" fill="#2D6B27" font-weight="600" font-size="11">RUNTIME</text>
+
+  <!-- Step 1: Create intent -->
+  <circle cx="80" cy="85" r="16" fill="#6753AC"/>
+  <text x="80" y="90" text-anchor="middle" fill="white" font-weight="700">1</text>
+  <rect x="110" y="70" width="550" height="45" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="92" fill="#4F3D8A" font-weight="600">Operator creates ApplicationIntent</text>
+  <text x="130" y="108" fill="#6753AC" font-size="11">"p99 latency under 50ms, availability 99.9%, max 10 replicas"</text>
+
+  <line x1="400" y1="115" x2="400" y2="140" stroke="#444" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Step 2: AI analyzes -->
+  <circle cx="80" cy="160" r="16" fill="#6753AC"/>
+  <text x="80" y="165" text-anchor="middle" fill="white" font-weight="700">2</text>
+  <rect x="110" y="145" width="550" height="55" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="167" fill="#4F3D8A" font-weight="600">Controller calls LLM (~30s)</text>
+  <text x="130" y="185" fill="#6753AC" font-size="11">Analyzes deployment spec (resources, replicas) + objectives + constraints</text>
+  <text x="130" y="198" fill="#6753AC" font-size="10">LLM generates HPA, PDB, resource patches with reasoning comments</text>
+
+  <line x1="400" y1="200" x2="400" y2="220" stroke="#444" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Step 3: Recommendation stored -->
+  <circle cx="80" cy="240" r="16" fill="#6753AC"/>
+  <text x="80" y="245" text-anchor="middle" fill="white" font-weight="700">3</text>
+  <rect x="110" y="225" width="550" height="55" rx="8" fill="#F0E6FF" stroke="#6753AC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="247" fill="#4F3D8A" font-weight="600">Recommendation stored — PendingApproval</text>
+  <text x="130" y="265" fill="#6753AC" font-size="11">Generated manifests stored in status.recommendation.resources:</text>
+  <text x="130" y="278" fill="#6753AC" font-size="10">HPA (min=2, max=10, CPU=70%)  •  PDB (minAvailable=1)  •  Resource patches (CPU 50m→200m)</text>
+
+  <line x1="400" y1="280" x2="400" y2="300" stroke="#444" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Step 4: Approval -->
+  <circle cx="80" cy="320" r="16" fill="#0066CC"/>
+  <text x="80" y="325" text-anchor="middle" fill="white" font-weight="700">4</text>
+  <rect x="110" y="305" width="550" height="45" rx="8" fill="#E3F2FD" stroke="#0066CC" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="327" fill="#0D47A1" font-weight="600">Operator reviews and approves</text>
+  <text x="130" y="343" fill="#0066CC" font-size="11">oc patch applicationintent ... --subresource=status -p '{"status":{"approved":true}}'</text>
+
+  <line x1="400" y1="350" x2="400" y2="370" stroke="#444" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Step 5: Resources applied -->
+  <circle cx="80" cy="395" r="16" fill="#3E8635"/>
+  <text x="80" y="400" text-anchor="middle" fill="white" font-weight="700">5</text>
+  <rect x="110" y="380" width="550" height="55" rx="8" fill="#E8F5E3" stroke="#3E8635" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="402" fill="#2D6B27" font-weight="600">Resources applied automatically</text>
+  <text x="130" y="420" fill="#3E8635" font-size="11">HPA created → PDB created → Deployment patched with new resource limits</text>
+  <text x="130" y="433" fill="#3E8635" font-size="10">Phase: Active → HPA takes over scaling</text>
+
+  <line x1="400" y1="435" x2="400" y2="455" stroke="#3E8635" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- Step 6: Runtime -->
+  <circle cx="80" cy="480" r="16" fill="#3E8635"/>
+  <text x="80" y="485" text-anchor="middle" fill="white" font-weight="700">6</text>
+  <rect x="110" y="465" width="550" height="45" rx="8" fill="#E8F5E3" stroke="#3E8635" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="487" fill="#2D6B27" font-weight="600">Runtime — No LLM</text>
+  <text x="130" y="503" fill="#3E8635" font-size="11">HPA scales replicas based on CPU utilization. Controller monitors and reports fulfillment.</text>
+
+  <line x1="400" y1="510" x2="400" y2="530" stroke="#3E8635" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- Step 7: Fulfilled -->
+  <circle cx="80" cy="555" r="16" fill="#3E8635"/>
+  <text x="80" y="560" text-anchor="middle" fill="white" font-weight="700">7</text>
+  <rect x="110" y="540" width="280" height="35" rx="8" fill="#E8F5E3" stroke="#3E8635" stroke-width="2" filter="url(#shadow)"/>
+  <text x="250" y="562" text-anchor="middle" fill="#2D6B27" font-weight="700">Fulfilled ✓</text>
+
+  <!-- Step 7b: Degraded -->
+  <rect x="430" y="540" width="230" height="35" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="545" y="562" text-anchor="middle" fill="#B71C1C" font-weight="600">Degraded → Escalate</text>
+  <line x1="545" y1="575" x2="545" y2="610" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="5 3"/>
+
+  <!-- Escalation detail -->
+  <rect x="430" y="610" width="230" height="45" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1" filter="url(#shadow)"/>
+  <text x="545" y="632" text-anchor="middle" fill="#B71C1C" font-size="11">→ PoC 1.1 Self-Healing Agent</text>
+  <text x="545" y="648" text-anchor="middle" fill="#CC0000" font-size="10">→ or Human operator</text>
+
+  <!-- Phase separator -->
+  <line x1="40" y1="365" x2="760" y2="365" stroke="#999" stroke-width="0.5" stroke-dasharray="3 3"/>
+
+  <!-- Timing -->
+  <text x="55" y="170" fill="#6753AC" font-size="10" font-weight="600">~30s</text>
+  <text x="55" y="490" fill="#3E8635" font-size="10" font-weight="600">cont.</text>
+  <text x="700" y="690" fill="#888" font-size="10">Design: ~30s | Runtime: no LLM</text>
+</svg>

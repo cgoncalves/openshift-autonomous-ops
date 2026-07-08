@@ -1,0 +1,186 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.21.0
+  name: applicationintents.an.openshift.io
+spec:
+  group: an.openshift.io
+  names:
+    kind: ApplicationIntent
+    listKind: ApplicationIntentList
+    plural: applicationintents
+    singular: applicationintent
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.target.deployment
+      name: Target
+      type: string
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .status.approved
+      name: Approved
+      type: boolean
+    - jsonPath: .status.fulfillment.currentReplicas
+      name: Replicas
+      type: integer
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ApplicationIntent is the Schema for the applicationintents API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: spec defines the desired state of ApplicationIntent
+            properties:
+              autoApprove:
+                default: false
+                description: autoApprove controls whether AI recommendations are applied
+                  without human approval
+                type: boolean
+              constraints:
+                description: constraints define scaling and resource boundaries
+                properties:
+                  maxCPUPerPod:
+                    type: string
+                  maxMemoryPerPod:
+                    type: string
+                  maxReplicas:
+                    format: int32
+                    minimum: 1
+                    type: integer
+                  minReplicas:
+                    default: 1
+                    format: int32
+                    minimum: 1
+                    type: integer
+                required:
+                - maxReplicas
+                type: object
+              objectives:
+                description: objectives define the SLA goals
+                items:
+                  properties:
+                    metric:
+                      description: metric name (e.g., "p99", "p95", "error_rate")
+                      type: string
+                    target:
+                      description: target value as string (e.g., "100ms", "99.9%",
+                        "1000rps")
+                      type: string
+                    type:
+                      enum:
+                      - Latency
+                      - Availability
+                      - Throughput
+                      type: string
+                  required:
+                  - target
+                  - type
+                  type: object
+                minItems: 1
+                type: array
+              target:
+                description: target identifies the deployment to manage
+                properties:
+                  deployment:
+                    minLength: 1
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - deployment
+                type: object
+            required:
+            - constraints
+            - objectives
+            - target
+            type: object
+          status:
+            description: status defines the observed state of ApplicationIntent
+            properties:
+              approved:
+                type: boolean
+              fulfillment:
+                properties:
+                  currentReplicas:
+                    format: int32
+                    type: integer
+                  lastChecked:
+                    format: date-time
+                    type: string
+                  message:
+                    type: string
+                  state:
+                    type: string
+                type: object
+              message:
+                type: string
+              phase:
+                enum:
+                - Analyzing
+                - PendingApproval
+                - Applying
+                - Active
+                - Fulfilled
+                - Adapting
+                - Degraded
+                - Error
+                type: string
+              recommendation:
+                properties:
+                  generatedAt:
+                    description: When the recommendation was generated
+                    format: date-time
+                    type: string
+                  resources:
+                    description: Generated K8s resource manifests as raw JSON
+                    items:
+                      properties:
+                        apiVersion:
+                          type: string
+                        kind:
+                          type: string
+                        manifest:
+                          description: Raw YAML/JSON manifest
+                          type: string
+                        name:
+                          type: string
+                      required:
+                      - apiVersion
+                      - kind
+                      - manifest
+                      - name
+                      type: object
+                    type: array
+                  summary:
+                    description: Human-readable summary of the analysis and recommendation
+                    type: string
+                type: object
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

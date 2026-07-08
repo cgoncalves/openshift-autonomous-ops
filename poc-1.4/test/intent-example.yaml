@@ -1,0 +1,21 @@
+apiVersion: an.openshift.io/v1alpha1
+kind: ApplicationIntent
+metadata:
+  name: sample-app-sla
+  namespace: poc-1-4
+spec:
+  target:
+    deployment: sample-app
+    namespace: poc-1-4
+  objectives:
+    - type: Latency
+      metric: p99
+      target: "50ms"
+    - type: Availability
+      target: "99.9%"
+  constraints:
+    minReplicas: 2
+    maxReplicas: 10
+    maxCPUPerPod: "500m"
+    maxMemoryPerPod: "256Mi"
+  autoApprove: false
