@@ -181,6 +181,19 @@ func (r *ApplicationIntentReconciler) reconcileApply(ctx context.Context, intent
 			log.Info("Created resource", "kind", res.Kind, "name", res.Name)
 			r.Recorder.Eventf(intent, "Normal", "ResourceCreated", "Created %s/%s", res.Kind, res.Name)
 		} else if err == nil {
+			// For Deployments, preserve the existing image to avoid breaking pulls
+			if res.Kind == "Deployment" {
+				existingContainers, _, _ := unstructured.NestedSlice(existing.Object, "spec", "template", "spec", "containers")
+				newContainers, _, _ := unstructured.NestedSlice(obj.Object, "spec", "template", "spec", "containers")
+				for i := range newContainers {
+					if i < len(existingContainers) {
+						ec := existingContainers[i].(map[string]interface{})
+						nc := newContainers[i].(map[string]interface{})
+						nc["image"] = ec["image"]
+					}
+				}
+				unstructured.SetNestedSlice(obj.Object, newContainers, "spec", "template", "spec", "containers")
+			}
 			obj.SetResourceVersion(existing.GetResourceVersion())
 			if err := r.Update(ctx, obj); err != nil {
 				log.Error(err, "Failed to update resource", "resource", res.Name)
@@ -556,26 +569,38 @@ func (r *ApplicationIntentReconciler) parseLLMResponse(response string) ([]anv1a
 	var resources []anv1alpha1.ResourceManifest
 	var summary string
 
-	lines := strings.Split(response, "\n")
+	// Strip markdown code fences
+	cleaned := response
+	cleaned = strings.ReplaceAll(cleaned, "```yaml", "")
+	cleaned = strings.ReplaceAll(cleaned, "```yml", "")
+	cleaned = strings.ReplaceAll(cleaned, "```", "")
+
+	// Extract summary from leading comment lines or text before first ---
+	lines := strings.Split(cleaned, "\n")
 	var summaryLines []string
-	inComment := false
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "#") {
-			inComment = true
-			summaryLines = append(summaryLines, strings.TrimPrefix(trimmed, "# "))
-		} else if inComment && trimmed == "" {
-			inComment = false
-		} else {
+		if trimmed == "---" || strings.HasPrefix(trimmed, "apiVersion") {
 			break
 		}
+		if trimmed == "" {
+			continue
+		}
+		cleaned := strings.TrimPrefix(trimmed, "# ")
+		cleaned = strings.TrimPrefix(cleaned, "#")
+		summaryLines = append(summaryLines, cleaned)
 	}
-	summary = strings.Join(summaryLines, "\n")
+	summary = strings.Join(summaryLines, " ")
 
-	docs := strings.Split(response, "---")
+	// Parse YAML documents
+	docs := strings.Split(cleaned, "---")
 	for _, doc := range docs {
 		doc = strings.TrimSpace(doc)
-		if doc == "" || strings.HasPrefix(doc, "#") {
+		if doc == "" {
+			continue
+		}
+		// Skip non-YAML content
+		if !strings.Contains(doc, "apiVersion") {
 			continue
 		}
 
