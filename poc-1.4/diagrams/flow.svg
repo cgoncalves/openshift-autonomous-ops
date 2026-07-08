@@ -85,7 +85,7 @@
 
   <!-- Escalation detail -->
   <rect x="430" y="610" width="230" height="45" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1" filter="url(#shadow)"/>
-  <text x="545" y="632" text-anchor="middle" fill="#B71C1C" font-size="11">→ PoC 1.1 Self-Healing Agent</text>
+  <text x="545" y="632" text-anchor="middle" fill="#B71C1C" font-size="11">→ AI re-analysis (LLM #2)</text>
   <text x="545" y="648" text-anchor="middle" fill="#CC0000" font-size="10">→ or Human operator</text>
 
   <!-- Phase separator -->

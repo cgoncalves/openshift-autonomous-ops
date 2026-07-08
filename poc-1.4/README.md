@@ -12,8 +12,8 @@ and risky for production), the AI acts as a **capacity planner**:
    and generates HPA, PDB, and resource configurations for human review.
 2. **Runtime**: Standard Kubernetes controllers (HPA) handle scaling —
    fast, deterministic, battle-tested.
-3. **Exception**: When runtime can't cope, escalate to the self-healing
-   agent (PoC 1.1) or a human.
+3. **Exception**: When runtime can't cope, the controller re-invokes the
+   LLM with runtime context to generate an updated recommendation.
 
 ## Architecture
 

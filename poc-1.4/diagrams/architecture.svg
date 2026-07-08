@@ -95,7 +95,7 @@
   <!-- Escalation -->
   <rect x="600" y="370" width="200" height="50" rx="8" fill="#FFEBEE" stroke="#CC0000" stroke-width="1.5" filter="url(#shadow)"/>
   <text x="700" y="393" text-anchor="middle" fill="#B71C1C" font-weight="600" font-size="12">Escalation</text>
-  <text x="700" y="410" text-anchor="middle" fill="#CC0000" font-size="10">→ PoC 1.1 Agent or Human</text>
+  <text x="700" y="410" text-anchor="middle" fill="#CC0000" font-size="10">→ AI re-analysis or Human</text>
   <path d="M 585 175 Q 700 280 700 370" fill="none" stroke="#CC0000" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowRed)"/>
   <text x="680" y="280" fill="#CC0000" font-size="10">if Degraded</text>
 
