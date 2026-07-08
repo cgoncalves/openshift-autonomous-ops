@@ -31,52 +31,43 @@ and risky for production), the AI acts as a **capacity planner**:
 
 ## Demo Scenario
 
-1. **Create intent**:
-   ```bash
-   oc apply -f test/intent-example.yaml
-   ```
+```bash
+# 1. Deploy
+make deploy
 
-2. **AI analyzes** (~30s): Controller calls LLM, generates recommendation
-   ```
-   $ oc get applicationintent
-   NAME             TARGET       PHASE             APPROVED   REPLICAS
-   sample-app-sla   sample-app   PendingApproval
-   ```
+# 2. Create intent → AI analyzes → PendingApproval
+make test
+make status
 
-3. **Review recommendation**:
-   ```bash
-   oc get applicationintent sample-app-sla -o jsonpath='{range .status.recommendation.resources[*]}{.kind}/{.name}{"\n"}{end}'
-   ```
+# 3. Review and approve initial recommendation
+make approve
+make status          # HPA + PDB created, phase: Fulfilled
 
-4. **Approve**:
-   ```bash
-   oc patch applicationintent sample-app-sla --type=merge --subresource=status \
-     -p '{"status":{"approved":true}}'
-   ```
+# 4. Generate heavy load to overwhelm HPA → triggers escalation
+make heavy-load      # 200 concurrent, 5 min
+# Watch in another terminal:
+#   watch 'oc get applicationintent,hpa -n poc-1-4'
 
-5. **Resources created**: HPA + PDB applied, deployment patched
-   ```
-   $ oc get hpa,pdb
-   NAME                        REFERENCE               TARGETS          MINPODS   MAXPODS
-   sample-app-hpa              Deployment/sample-app   cpu: 12%/70%     2         10
+# 5. Observe the escalation cycle:
+#    Fulfilled → Adapting → Degraded (90s) → Analyzing → PendingApproval
 
-   NAME                        MIN AVAILABLE   ALLOWED DISRUPTIONS
-   sample-app-pdb              1               1
-   ```
+# 6. Approve the escalation recommendation
+make approve
+make status          # Updated resources applied, phase: Fulfilled
 
-6. **Runtime scaling**: HPA scales replicas under load — no LLM involved
+# Teardown
+make teardown
+```
 
-7. **Escalation**: If HPA at max replicas and SLA still breached for >90s:
-   - Controller re-invokes LLM with runtime context
-   - LLM generates updated recommendation (e.g., CPU limits ↑25%, pod
-     anti-affinity, HPA behavior tuning)
-   - Phase returns to `PendingApproval` for operator review
+### What happens at each step
 
-8. **Approve updated config**: Operator reviews and approves the
-   escalation recommendation
-
-9. **Recovery**: Updated resources applied — CPU drops, replicas stabilize,
-   intent returns to `Fulfilled`
+| Step | Phase | What happens | LLM? |
+|------|-------|--------------|-------|
+| `make test` | Analyzing → PendingApproval | AI generates HPA + PDB + resource patches | Yes |
+| `make approve` | Active → Fulfilled | Resources applied, HPA takes over | No |
+| `make heavy-load` | Adapting → Degraded | HPA scales to max, SLA still breached | No |
+| *(90s later)* | Analyzing → PendingApproval | AI re-analyzes with runtime context, generates updated config | Yes |
+| `make approve` | Active → Fulfilled | Updated resources applied, CPU drops, replicas stabilize | No |
 
 ## Demo Results
 
