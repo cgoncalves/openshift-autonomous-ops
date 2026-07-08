@@ -10,7 +10,7 @@ operations to telco-specific use cases.
 |-----|-----------|-------------|------------|
 | 1.1 | [`poc-1.1/`](poc-1.1/) | Agentic Cluster Self-Healing | 2/5 |
 | 1.2 | [`poc-1.2/`](poc-1.2/) | Intent-Driven Application Scaling | 2/5 |
-| 1.4 | [`poc-1.4/`](poc-1.4/) | AI-Assisted Intent Configuration | 3/5 |
+| 1.4 | [`poc-1.4/`](poc-1.4/) | Closed-Loop Intent Management | 3/5 |
 | 4.3 | [`poc-4.3/`](poc-4.3/) | MCP-Integrated NOC Assistant | 3/5 |
 
 ## How They Connect
@@ -20,7 +20,7 @@ operations to telco-specific use cases.
       ↑
       ├── poc-1.1        ← Self-Healing Agent (MCP + LLM + AAP)
       ├── poc-1.2        ← Intent Controller (standalone, needs Prometheus)
-      ├── poc-1.4        ← AI Intent Config (LLM at design time, HPA at runtime)
+      ├── poc-1.4        ← Closed-Loop Intent (LLM at design time, HPA at runtime)
       └── poc-4.3        ← NOC Assistant (MCP + LLM + manages intents from 1.2)
 ```
 

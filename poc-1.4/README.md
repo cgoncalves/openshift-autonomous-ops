@@ -1,7 +1,9 @@
-# PoC 1.4: AI-Assisted Intent Configuration
+# PoC 1.4: Closed-Loop Intent Management
 
 AI translates business intents into Kubernetes configurations at design
-time. Standard controllers handle runtime. No LLM in the control loop.
+time. Standard controllers handle runtime scaling. When runtime can't
+cope, the AI re-analyzes with runtime context and generates an updated
+configuration — closing the loop.
 
 ## Overview
 
@@ -11,9 +13,13 @@ and risky for production), the AI acts as a **capacity planner**:
 1. **Design time**: Operator creates an intent. The AI analyzes the workload
    and generates HPA, PDB, and resource configurations for human review.
 2. **Runtime**: Standard Kubernetes controllers (HPA) handle scaling —
-   fast, deterministic, battle-tested.
-3. **Exception**: When runtime can't cope, the controller re-invokes the
-   LLM with runtime context to generate an updated recommendation.
+   fast, deterministic, battle-tested. No LLM in the control loop.
+3. **Escalation**: When the HPA is at max replicas and the SLA is still
+   breached for >90s, the controller re-invokes the LLM with runtime
+   context (current CPU, replica count, resource limits). The LLM
+   generates an updated recommendation — potentially changing resource
+   limits, HPA behavior, pod affinity, or other K8s primitives. The
+   operator reviews and approves before the updated config is applied.
 
 ## Architecture
 
@@ -39,7 +45,6 @@ and risky for production), the AI acts as a **capacity planner**:
 
 3. **Review recommendation**:
    ```bash
-   oc get applicationintent sample-app-sla -o jsonpath='{.status.recommendation.summary}'
    oc get applicationintent sample-app-sla -o jsonpath='{range .status.recommendation.resources[*]}{.kind}/{.name}{"\n"}{end}'
    ```
 
@@ -49,7 +54,7 @@ and risky for production), the AI acts as a **capacity planner**:
      -p '{"status":{"approved":true}}'
    ```
 
-5. **Resources created**: HPA + PDB applied automatically
+5. **Resources created**: HPA + PDB applied, deployment patched
    ```
    $ oc get hpa,pdb
    NAME                        REFERENCE               TARGETS          MINPODS   MAXPODS
@@ -59,14 +64,19 @@ and risky for production), the AI acts as a **capacity planner**:
    sample-app-pdb              1               1
    ```
 
-6. **Runtime scaling**: HPA handles load changes — no LLM involved
+6. **Runtime scaling**: HPA scales replicas under load — no LLM involved
 
-7. **Escalation** (if SLA breached beyond HPA capacity):
-   - HPA at max replicas, CPU still above target for >90s
+7. **Escalation**: If HPA at max replicas and SLA still breached for >90s:
    - Controller re-invokes LLM with runtime context
-   - LLM generates updated recommendation (e.g., increased CPU limits,
-     pod anti-affinity, HPA behavior tuning)
-   - New `PendingApproval` for operator review
+   - LLM generates updated recommendation (e.g., CPU limits ↑25%, pod
+     anti-affinity, HPA behavior tuning)
+   - Phase returns to `PendingApproval` for operator review
+
+8. **Approve updated config**: Operator reviews and approves the
+   escalation recommendation
+
+9. **Recovery**: Updated resources applied — CPU drops, replicas stabilize,
+   intent returns to `Fulfilled`
 
 ## Demo Results
 
@@ -83,14 +93,18 @@ and risky for production), the AI acts as a **capacity planner**:
   review, graduate to `autoApprove: true` as confidence grows
 - Standard K8s controllers (HPA, PDB) are the right tool for runtime —
   the AI's value is in **configuring them correctly**
+- The **escalation loop** closes the feedback cycle — when the initial
+  config isn't sufficient, the AI re-analyzes with runtime data and
+  recommends multi-dimensional changes (resource limits, affinity,
+  HPA behavior) that a hardcoded controller can't reason about
 
 ## Components
 
 | Component | Description |
 |-----------|-------------|
-| Intent Controller | Go/kubebuilder, calls LLM at design time, monitors HPA at runtime |
+| Intent Controller | Go/kubebuilder, calls LLM at design time + escalation, monitors HPA at runtime |
 | ApplicationIntent CRD | Objectives (latency, availability) + constraints + recommendation + fulfillment |
-| Sample App | Go HTTP server (reused from PoC 1.2) |
+| Sample App | Go HTTP server with contention-based latency (reused from PoC 1.2) |
 
 ## Prerequisites
 
