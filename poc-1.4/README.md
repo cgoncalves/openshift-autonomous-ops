@@ -61,6 +61,17 @@ and risky for production), the AI acts as a **capacity planner**:
 
 6. **Runtime scaling**: HPA handles load changes — no LLM involved
 
+7. **Escalation** (if SLA breached beyond HPA capacity):
+   - HPA at max replicas, CPU still above target for >90s
+   - Controller re-invokes LLM with runtime context
+   - LLM generates updated recommendation (e.g., increased CPU limits,
+     pod anti-affinity, HPA behavior tuning)
+   - New `PendingApproval` for operator review
+
+## Demo Results
+
+![Demo Results](diagrams/demo-results.svg)
+
 ## What It Proves
 
 - AI at **design time** is safer, cheaper, and more predictable than AI
