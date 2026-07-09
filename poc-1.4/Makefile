@@ -2,7 +2,7 @@ KUBECONFIG ?= $(HOME)/.kube/config
 NS = poc-1-4
 SAMPLE_APP_DIR = ../poc-1.2/sample-app
 
-.PHONY: deploy teardown status deploy-app deploy-controller test approve
+.PHONY: deploy teardown status deploy-app deploy-controller test approve load heavy-load stop-load
 
 deploy: deploy-app deploy-controller
 	@echo "PoC 1.4 deployed. Create an intent: oc apply -f test/intent-example.yaml"
@@ -52,6 +52,11 @@ heavy-load:
 	@echo "Run in parallel: watch 'oc get applicationintent,hpa -n $(NS)'"
 	oc apply -f test/heavy-load.yaml -n $(NS)
 	@echo "Heavy load job started. Watch for Degraded → Analyzing → PendingApproval."
+
+stop-load:
+	oc delete job/load-generator -n $(NS) --ignore-not-found 2>/dev/null || true
+	oc delete job/heavy-load -n $(NS) --ignore-not-found 2>/dev/null || true
+	@echo "Load generators stopped."
 
 status:
 	@echo "=== ApplicationIntents ==="
