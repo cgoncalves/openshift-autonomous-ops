@@ -59,10 +59,7 @@ test-escalation:
 	oc delete hpa --all -n $(NS) --ignore-not-found 2>/dev/null || true
 	oc delete pdb --all -n $(NS) --ignore-not-found 2>/dev/null || true
 	oc delete job/heavy-load job/load-generator -n $(NS) --ignore-not-found 2>/dev/null || true
-	oc patch deploy sample-app -n $(NS) --type=json -p '[ \
-	  {"op":"replace","path":"/spec/replicas","value":1}, \
-	  {"op":"replace","path":"/spec/template/spec/containers/0/resources","value":{"requests":{"cpu":"50m","memory":"32Mi"},"limits":{"cpu":"100m","memory":"64Mi"}}} \
-	]'
+	oc patch deploy sample-app -n $(NS) --type=json -p '[{"op":"replace","path":"/spec/replicas","value":1},{"op":"replace","path":"/spec/template/spec/containers/0/resources","value":{"requests":{"cpu":"50m","memory":"32Mi"},"limits":{"cpu":"100m","memory":"64Mi"}}}]'
 	@sleep 10
 	@echo ""
 	@echo "=== Creating intent (maxReplicas: 5) ==="
@@ -80,10 +77,7 @@ test-escalation:
 	@sleep 15
 	@echo ""
 	@echo "=== Resetting CPU limits to 100m (forces escalation) ==="
-	oc patch deploy sample-app -n $(NS) --type=json -p '[ \
-	  {"op":"replace","path":"/spec/template/spec/containers/0/resources/limits/cpu","value":"100m"}, \
-	  {"op":"replace","path":"/spec/template/spec/containers/0/resources/requests/cpu","value":"50m"} \
-	]'
+	oc patch deploy sample-app -n $(NS) --type=json -p '[{"op":"replace","path":"/spec/template/spec/containers/0/resources/limits/cpu","value":"100m"},{"op":"replace","path":"/spec/template/spec/containers/0/resources/requests/cpu","value":"50m"}]'
 	@sleep 15
 	@echo ""
 	@echo "=== Starting heavy load ==="
