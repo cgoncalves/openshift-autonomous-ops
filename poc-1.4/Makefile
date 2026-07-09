@@ -42,7 +42,7 @@ approve:
 
 load:
 	oc delete job/load-generator -n $(NS) --ignore-not-found 2>/dev/null || true
-	oc apply -f ../poc-1.2/test/load-generator.yaml -n $(NS)
+	oc apply -f test/load-generator.yaml
 	@echo "Load generator started (80 concurrent, 5 min)."
 	@echo "Watch scaling: oc get hpa -n $(NS) -w"
 	@echo "Watch intent:  oc get applicationintent -n $(NS) -w"
